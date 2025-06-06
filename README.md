@@ -16,23 +16,6 @@ Fault detection logic (basic thresholds or future ML)
 Compatible with Power BI / Python data dashboard (planned)
 Built using Keil uVision 5 + TI SimpleLink SDK DriverLib
 
-📦 Project Structure
-
-motion_fault_logger/
-├── KeilProject/           # Keil uVision project files
-├── src/
-│   ├── main.c             # Main application logic
-│   ├── i2c.c              # I2C driver
-│   ├── uart.c             # UART logging
-│   ├── mpu6050.c          # Sensor utilities (coming soon)
-├── include/
-│   ├── i2c.h
-│   ├── uart.h
-│   ├── mpu6050.h
-├── README.md
-└── .gitignore
-
-
 ⚙️ Getting Started
 
 Prerequisites
