@@ -65,7 +65,7 @@ The project is being developed in phases:
 Bachelor of Engineering, Computer Engineering  
 McMaster University  
 - GitHub: [@kasra-n34](https://github.com/kasra-n34)  
-- LinkedIn: [linkedin.com/in/kasranoyan]([https://linkedin.com/in/kasranoyan](https://www.linkedin.com/in/kasra-noyan-1b105421b/))
+- LinkedIn: [linkedin.com/in/kasranoyan](https://www.linkedin.com/in/kasra-noyan-1b105421b/)
 
 ---
 
