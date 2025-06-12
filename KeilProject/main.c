@@ -1,66 +1,48 @@
 #include <stdint.h>
-#include <stdbool.h>
-#include "i2c.h" 
-
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
 #include "driverlib/uart.h"
-#include "driverlib/i2c.h"
 #include "driverlib/pin_map.h"
-#include "inc/hw_memmap.h"
-
-#define MPU6050_ADDR 0x68
-
-uint32_t gSysClock;  
-
+#include "uart.h"
+#include "hw_memmap.h"
+#include "hw_types.h"
+#include "hw_gpio.h"
 
 
-static void delay_ms(uint32_t ms) {
-    SysCtlDelay((gSysClock / 3 / 1000) * ms);
-}
+uint32_t gSysClock;
 
-static void UART0_Init(void) {
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0));
-    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA));
-
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    UARTConfigSetExpClk(UART0_BASE, gSysClock, 9600,
-        (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE));
-
-    UARTEnable(UART0_BASE);
-}
-
-static void UART0_Print(const char *msg) {
-    while (*msg) {
-        UARTCharPut(UART0_BASE, *msg++);
-    }
-}
 
 int main(void) {
-    gSysClock = SysCtlClockFreqSet((SYSCTL_OSC_MAIN | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480), 120000000);
+	
+    // Use internal oscillator to avoid crash
+    gSysClock = SysCtlClockFreqSet(
+        SYSCTL_OSC_INT | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480,
+        50000000); // ~50 MHz safe config
+	
+		UART0_Init();
+		UART0_Print("Booting...\r\n");
 
-    UART0_Init();
-    I2C0_Init();
+    // Enable GPIO Ports
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
+    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
+    while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPION));
 
-    UART0_Print("Booting...\r\n");
+    // Unlock PF0
+    HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    HWREG(GPIO_PORTF_BASE + GPIO_O_CR) |= GPIO_PIN_0;
+    HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0;
 
-    delay_ms(100);
-    I2C0_WriteRegister(MPU6050_ADDR, 0x6B, 0x00);  // Wake up sensor
+    // Set PF0, PF4, PN0, PN1 as outputs
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+    GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-    uint8_t id = I2C0_ReadRegister(MPU6050_ADDR, 0x75);  // WHO_AM_I
+		while (1) {
+			GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4, GPIO_PIN_0 | GPIO_PIN_4);
+			GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_0 | GPIO_PIN_1);
+			UART0_Print("System OK\r\n");
+			for (volatile int i = 0; i < 100000; i++);  // crude delay to avoid spamming
 
-    if (id == 0x68) {
-        UART0_Print("MPU6050 detected\r\n");
-    } else {
-        UART0_Print("MPU6050 not detected\r\n");
-    }
-
-    while (1) {
-        delay_ms(500);
-    }
+			
+		}
 }
