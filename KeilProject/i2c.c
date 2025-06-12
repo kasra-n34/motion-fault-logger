@@ -3,7 +3,7 @@
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/sysctl.h"
-#include "inc/hw_memmap.h"
+#include "hw_memmap.h"
 
 extern uint32_t gSysClock;
 

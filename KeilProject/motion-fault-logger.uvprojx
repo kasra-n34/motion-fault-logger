@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>PART_MSP432E401Y</Define>
               <Undefine></Undefine>
-              <IncludePath>C:\ti\simplelink_msp432e4_sdk_4_20_00_12\source\ti\devices\msp432e4;.\inc;C:\ti\simplelink_msp432e4_sdk_4_20_00_12\source\ti\devices\msp432e4\inc</IncludePath>
+              <IncludePath>C:\ti\simplelink_msp432e4_sdk_4_20_00_12\source\ti\devices\msp432e4\inc,.\inc,C:\ti\simplelink_msp432e4_sdk_4_20_00_12\source\ti\devices\msp432e4</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
